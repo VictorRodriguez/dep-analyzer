@@ -1,8 +1,8 @@
-import os 
+import os
 import argparse
 import re
 import subprocess
-import json 
+import json
 import wget # pip install wget
 import csv
 from jinja2 import Environment, FileSystemLoader # pip install jinja2
@@ -20,7 +20,7 @@ data = {}
 
 def get_commit(release,pkg):
     blame_log = []
-    # get info from : 
+    # get info from :
     # https://cdn.download.clearlinux.org/releases/24660/clear/RELEASENOTES
     filename = "/tmp/RELEASENOTES-" + str(release)
     if not os.path.isfile(filename):
@@ -40,7 +40,7 @@ def get_commit(release,pkg):
     return str1
 
 def generate_results_dir():
-    newpath = r'results' 
+    newpath = r'results'
     if not os.path.exists(newpath):
         os.makedirs(newpath)
         os.system('mv index.html results/index.html')
@@ -86,7 +86,7 @@ def whatprovides(file_name):
         with open(yum_log) as f:
             content = f.readlines()
             for line in content:
-                if ".x86_64" in line: 
+                if ".x86_64" in line:
                     pkg = line.split("-")[0]
                     if pkg not in pkgs:
                         pkgs.append(pkg)
@@ -100,7 +100,7 @@ def analize():
     if os.path.isfile(log_file):
         global libraries
         libraries = []
-        global binaries 
+        global binaries
         binaries = []
         lib_count = 0
         bin_count = 0
@@ -214,7 +214,7 @@ def main():
                         data_json = json.load(json_file)
                         if data_json:
                             merge_dict = {**data, **data_json}
-            if not merge_dict: 
+            if not merge_dict:
                 merge_dict = data
             with open('data.json', 'w') as outfile:
                 json.dump(merge_dict, outfile)
@@ -226,7 +226,7 @@ def main():
                 print_html_doc(data_json)
             print("index.html generated")
         if os.path.isfile("index.html"):
-            newpath = r'results' 
+            newpath = r'results'
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
                 os.system('mv index.html results/index.html')
@@ -279,7 +279,7 @@ def main():
                                                 pass
                                             else:
                                                 tmp[pkg] = blame_log
-                                        
+
                             if not changelog_flag:
                                 for k,v in tmp.items():
                                     data_json[bench].append({
