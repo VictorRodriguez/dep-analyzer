@@ -33,10 +33,12 @@ def get_commit(release,pkg):
             content = f.readlines()
             for line in content:
                 if token in line:
+                    print(line)
                     blame_log.append(line.strip())
                     blame_log.append(content[content.index(line)+1].strip().split("-")[0])
     tmp = list(set(blame_log))
     str1 = ''.join(tmp)
+    print(str1)
     return str1
 
 def generate_results_dir():
@@ -108,13 +110,13 @@ def analize():
             content = f.readlines()
             for line in content:
                 if "openat" in line or "access" in line:
-                    if "/usr/lib" in line and lib_count < 10:
+                    if "/usr/lib" in line and lib_count < 20:
                         m = re.search('<(.+?)>', line)
                         if m:
                             lib = m.group(1)
                             add_lib(lib)
                             lib_count +=1
-                    if "/usr/bin" in line and bin_count < 10:
+                    if "/usr/bin" in line and bin_count < 20:
                         m = re.search('/usr/bin/(.+?)"',line)
                         if m:
                             binary = "/usr/bin/" + m.group(1)
@@ -156,6 +158,7 @@ def main():
     parser.add_argument('--run', dest='run_mode', action='store_true')
     parser.add_argument('--analize', dest='analize_mode', action='store_true')
     parser.add_argument('--report', dest='report_mode', action='store_true')
+    parser.add_argument('--logfile',dest='logfile',metavar="FILE")
     parser.add_argument('filename')
     args = parser.parse_args()
 
@@ -168,6 +171,7 @@ def main():
                 if bench not in benchmarks:
                     benchmarks.append(bench)
 
+    print(benchmarks)
     cmd = "touch data.json"
     os.system(cmd)
 
@@ -214,6 +218,26 @@ def main():
                         data_json = json.load(json_file)
                         if data_json:
                             merge_dict = {**data, **data_json}
+            if not merge_dict:
+                merge_dict = data
+            with open('data.json', 'w') as outfile:
+                json.dump(merge_dict, outfile)
+
+    if args.logfile:
+        log_file = args.logfile
+        for loca_benchmark in benchmarks:
+            benchmark = loca_benchmark.strip()
+            analize()
+        if data:
+            merge_dict = {}
+            if os.path.isfile('data.json'):
+                try:
+                    with open('data.json') as json_file:
+                        data_json = json.load(json_file)
+                        if data_json:
+                            merge_dict = {**data, **data_json}
+                except ValueError as e:
+                    pass
             if not merge_dict:
                 merge_dict = data
             with open('data.json', 'w') as outfile:
@@ -272,6 +296,7 @@ def main():
                                     for k, v in element.items():
                                         if k == "provided by":
                                             pkg = element[k]
+                                            print(pkg)
                                             blame_log = get_commit(regression,pkg)
                                             if pkg in tmp:
                                                 pass
