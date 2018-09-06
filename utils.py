@@ -1,15 +1,19 @@
+"""Several utilities and convenient functions."""
+
 import os
 import re
 import shlex
 import subprocess
 
 pts = "/var/lib/phoronix-test-suite/test-suites/local"
-current_rn = 'https://cdn.download.clearlinux.org/releases/current/clear/RELEASENOTES'
+current_rn = 'https://cdn.download.clearlinux.org/releases/\
+current/clear/RELEASENOTES'
 fixed_version = 2780
 results = os.getcwd() + '/results/'
 
+
 def Run(command, xenv={}, check=True, **kwargs):
-    """run command"""
+    """Run command."""
     rc = 1
     fullArgs = {
             "args":    shlex.split(command),
@@ -25,7 +29,9 @@ def Run(command, xenv={}, check=True, **kwargs):
     rc = subprocess.run(**fullArgs)
     return rc.returncode, rc.stdout, rc.stderr
 
+
 def get_version():
+    """Get os version."""
     m = re.compile(r"Installed version: (\d+)")
     rc, o, err = Run("swupd info")
     if err == "":
@@ -40,8 +46,9 @@ def get_version():
         return int(v)
     return fixed_version
 
+
 def update():
-    """ update to the next release """
+    """Update to the next release."""
     # get current version
     v = get_version()
     print("current version: ", v)
@@ -56,11 +63,13 @@ def update():
         return False
     return True
 
+
 def save_file(filename, content):
+    """Append data into a file."""
     try:
         with open(filename, 'a') as f:
             f.write(content)
             f.close()
-    except Exception as e:
+    except Exception:
         print("Error writing file '{0}'".format(filename))
         exit(1)

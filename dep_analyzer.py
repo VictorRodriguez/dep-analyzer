@@ -1,23 +1,30 @@
 #!/usr/bin/env python3
 
+"""Main module."""
+
 import time
 
-from run_benchmark import run
 from analyze import analysis
+
+from run_benchmark import run
+
 import utils
 
-time_to_sleep = 360 # 1hr
+time_to_sleep = 360  # ~1hr
+
 
 def main():
-   while True:
-      if utils.update():
-         run()
-         # analysis()
-         # report()
-      time.sleep(time_to_sleep)
+    """Run the main loop."""
+    while True:
+        if utils.update():
+            run()
+            analysis()
+            # report()
+        time.sleep(time_to_sleep)
+
 
 if __name__ == "__main__":
-   try:
-      main()
-   except(KeyboardInterrupt):
-      exit(0)
+    try:
+        main()
+    except(KeyboardInterrupt):
+        exit(0)

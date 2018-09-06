@@ -1,3 +1,5 @@
+"""Get binary and library dependencies."""
+
 import os
 import re
 
@@ -7,18 +9,26 @@ data = {}
 libraries = []
 binaries = []
 yum_conf = "/etc/yum.conf"
+max_lib_cnt = 20
+max_bin_cnt = 20
+
 
 def add_binary(binary):
+    """Add a binary to the list."""
     if os.path.isfile(binary):
         if binary not in binaries:
             binaries.append(binary)
 
+
 def add_lib(lib):
+    """Add a library to the list."""
     if os.path.isfile(lib):
         if lib not in libraries:
             libraries.append(lib)
 
+
 def whatprovides(file_name):
+    """Get the bundle that  provides a file name."""
     pkgs = []
     pkg = ""
     yum_log = "/tmp/yum.log"
@@ -48,36 +58,38 @@ def whatprovides(file_name):
                     if pkg not in pkgs:
                         pkgs.append(pkg)
 
-    for pkg in pkgs:
-        print("File : " + file_name + " is provided by : " + pkg)
+    # for pkg in pkgs:
+    #     print("File : " + file_name + " is provided by : " + pkg)
     return pkg
 
+
 def analysis():
+    """Fill the bin/lib lists."""
     for logs in os.listdir(utils.results):
-        l = os.path.abspath(utils.results + logs)
+        log = os.path.abspath(utils.results + logs)
         benchmark = logs.split(".")[0]
         lib_count = 0
         bin_count = 0
-        with open(l) as f:
+        with open(log) as f:
             content = f.readlines()
             for line in content:
                 if "openat" in line or "access" in line:
-                    if "/usr/lib" in line and lib_count < 10:
+                    if "/usr/lib" in line and lib_count < max_lib_cnt:
                         m = re.search('<(.+?)>', line)
                         if m:
                             lib = m.group(1)
                             add_lib(lib)
-                            lib_count +=1
-                    if "/usr/bin" in line and bin_count < 10:
-                        m = re.search('/usr/bin/(.+?)"',line)
+                            lib_count += 1
+                    if "/usr/bin" in line and bin_count < max_bin_cnt:
+                        m = re.search('/usr/bin/(.+?)"', line)
                         if m:
                             binary = "/usr/bin/" + m.group(1)
                             add_binary(binary)
-                            bin_count +=1
+                            bin_count += 1
 
         data[benchmark] = []
         for lib in libraries:
-            print("Benchmark " + benchmark + " call: " + lib)
+            # print("Benchmark " + benchmark + " call: " + lib)
             pkg = whatprovides(lib)
             if (pkg):
                 data[benchmark].append({
@@ -86,29 +98,10 @@ def analysis():
                 })
 
         for binary in binaries:
-            print("Benchmark " + benchmark + " call: " + binary)
+            # print("Benchmark " + benchmark + " call: " + binary)
             pkg = whatprovides(binary)
             if (pkg):
                 data[benchmark].append({
                     'binary': binary,
                     'provided by': pkg
                 })
-
-        # if "strace" not in data[benchmark]:
-        #     strace_log = benchmark.replace("/","-") + "-strace.log"
-        #     data[benchmark].append({
-        #             'strace':strace_log
-        #             })
-        # if data:
-        #     merge_dict = {}
-        #     if os.path.isfile('data.json'):
-        #         if data_json_valid:
-        #             with open('data.json') as json_file:
-        #                 data_json = json.load(json_file)
-        #                 if data_json:
-        #                     merge_dict = {**data, **data_json}
-        #     if not merge_dict:
-        #         merge_dict = data
-        #     with open('data.json', 'w') as outfile:
-        #         json.dump(merge_dict, outfile)
-
