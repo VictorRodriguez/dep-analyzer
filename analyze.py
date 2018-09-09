@@ -4,6 +4,7 @@ import os
 import re
 
 import utils
+import json
 
 data = {}
 libraries = []
@@ -105,3 +106,9 @@ def analysis():
                     'binary': binary,
                     'provided by': pkg
                 })
+
+
+        if data:
+            json_file = "results/" + benchmark + "-data.json"
+            with open(json_file, 'w') as outfile:
+                json.dump(data, outfile)
