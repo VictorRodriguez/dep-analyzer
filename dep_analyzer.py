@@ -19,9 +19,10 @@ def main():
     """Run the main loop."""
     while True:
         if utils.update():
-            #run()
-            #analysis()
+            run()
+            analysis()
             report_html()
+            print("waiting for next build...")
         time.sleep(time_to_sleep)
 
 

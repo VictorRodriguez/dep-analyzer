@@ -5,35 +5,35 @@ import re
 
 import utils
 import json
-import wget
 
 data = {}
 libraries = []
 binaries = []
-yum_conf = "/etc/yum.conf"
 max_lib_cnt = 20
 max_bin_cnt = 20
 
-def get_commit(release,pkg):
+def get_commit(release, pkg):
     blame_log = []
-    # get info from :
-    # https://cdn.download.clearlinux.org/releases/24660/clear/RELEASENOTES
-    filename = "/tmp/RELEASENOTES-" + str(release)
-    if not os.path.isfile(filename):
-        url = 'https://cdn.download.clearlinux.org/releases/'+ release+'/clear/RELEASENOTES'
-        filename = wget.download(url=url,out=filename)
-    else:
-        token = "Changes in package " + (pkg)
-        with open(filename) as f:
-            content = f.readlines()
-            for line in content:
-                if token in line:
-                    print(line)
-                    blame_log.append(line.strip())
-                    blame_log.append(content[content.index(line)+1].strip().split("-")[0])
+    filename = "RELEASENOTES"
+
+    url = 'https://cdn.download.clearlinux.org/releases/'+ str(release)\
+        + '/clear/RELEASENOTES'
+    r, o, err = utils.Run("curl " + url)
+    if r != 0:
+        print("NO RELSEASENOTES FOUND!! for relase: " + str(release))
+        return ""
+
+    token = "Changes in package " + (pkg)
+    content = o.splitlines()
+    for line in iter(content):
+        if token in line:
+            print(line)
+            blame_log.append(line.strip())
+            blame_log.append(content[content.index(line)+1].strip().\
+                                 split("-")[0])
     tmp = list(set(blame_log))
-    str1 = ''.join(tmp)
-    return str1
+    return ''.join(tmp)
+
 
 def add_binary(binary):
     """Add a binary to the list."""
@@ -53,33 +53,21 @@ def whatprovides(file_name):
     """Get the bundle that  provides a file name."""
     pkgs = []
     pkg = ""
-    yum_log = "/tmp/yum.log"
-    cmd = "dnf-3 --releasever=clear "
-    cmd += " --config=/etc/dnf.conf provides "
-    cmd += file_name
-    # cmd += " &> /tmp/yum.log"
+
+    cmd = "repoquery -c /etc/yum.conf  --whatprovides " + file_name
     r, o, err = utils.Run(cmd)
-    utils.write_file(yum_log, o)
-    if r == 0 or err == '':
-        cmd = "repoquery -c "
-        cmd += yum_conf
-        cmd += " --whatprovides " + file_name
-        # cmd += " &> /tmp/yum.log"
+    if r != 0:
+        cmd = "dnf-3 --releasever=clear  --config=/etc/dnf.conf provides "
+        cmd += file_name
         r, o, err = utils.Run(cmd)
         if r != 0:
-            #print(err)
-            pass
-        else:
-            utils.write_file(yum_log, o)
+            return pkgs
 
-    if os.path.isfile(yum_log):
-        with open(yum_log) as f:
-            content = f.readlines()
-            for line in content:
-                if ".x86_64" in line:
-                    pkg = line.split("-")[0]
-                    if pkg not in pkgs:
-                        pkgs.append(pkg)
+    for line in iter(o.splitlines()):
+        if ".x86_64" in line:
+            pkg = line.split("-")[0]
+            if pkg not in pkgs:
+                pkgs.append(pkg)
 
     for pkg in pkgs:
         print("File : " + file_name + " is provided by : " + pkg)
@@ -115,10 +103,10 @@ def analysis():
             # TODO
             # regresion is hardcoded at this point , please let me knwo whats
             # thebest way to pass the regression version to the script
-            regression = 24760
+            regression = utils.get_version()
             if regression: 
                 data[benchmark].append({
-                    'regresion': regression,
+                    'regression': regression,
                 })
             for lib in libraries:
                 # print("Benchmark " + benchmark + " call: " + lib)
@@ -128,7 +116,7 @@ def analysis():
                         'lib': lib,
                         'provided by': pkg
                     })
-                    blame_log = get_commit(regression,pkg)
+                    blame_log = get_commit(regression, pkg)
                     if (blame_log):
                         data[benchmark].append({
                             'changelog': blame_log,
@@ -142,12 +130,12 @@ def analysis():
                         'binary': binary,
                         'provided by': pkg
                     })
-                    blame_log = get_commit(regression,pkg)
+                    blame_log = get_commit(regression, pkg)
                     if (blame_log):
                         data[benchmark].append({
                             'changelog': blame_log,
                         })
             if data:
-                json_file = "results/" + benchmark + "-data.json"
+                json_file = utils.results + benchmark + "-data.json"
                 with open(json_file, 'w') as outfile:
                     json.dump(data, outfile)

@@ -22,9 +22,12 @@ def Run(command, xenv={}, check=True, **kwargs):
             "universal_newlines": True,
     }
 
-    e = os.environ.copy()
-    e.update(xenv)
-    fullArgs['env'] = xenv
+    if xenv:
+        e = os.environ.copy()
+        e.update(xenv)
+        fullArgs['env'] = xenv
+
+    fullArgs.update(kwargs)
 
     rc = subprocess.run(**fullArgs)
     return rc.returncode, rc.stdout, rc.stderr
@@ -69,7 +72,6 @@ def save_file(filename, content):
     try:
         with open(filename, 'a') as f:
             f.write(content)
-            f.close()
     except Exception:
         print("Error writing file '{0}'".format(filename))
         exit(1)
@@ -79,7 +81,6 @@ def write_file(filename, content):
     try:
         with open(filename, 'w') as f:
             f.write(content)
-            f.close()
     except Exception:
         print("Error writing file '{0}'".format(filename))
         exit(1)

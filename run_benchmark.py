@@ -19,22 +19,29 @@ def phoronix_run():
     """Run benchmark suite."""
     print("\t-", phoronix_run.__name__)
     for t in os.listdir(utils.pts):
-        e = {'EXECUTE_BINARY_PREPEND': "strace -ff -o %s/%s "
-             % (logs, t.split("-")[0])}
+        strace = "/usr/bin/strace -ff -o %s/%s -ttt "\
+             % (logs, t.split("-")[0])
+        e = {'EXECUTE_BINARY_PREPEND': strace}
         pxenv.update(e)
         cmd = "phoronix-test-suite batch-benchmark local/" + t
+        print("\t\t", cmd)
         rc, o, err = utils.Run(cmd, xenv=pxenv)
         if err:
             print(rc, err)
         else:
-            os.system("cat %s/* >%s/%s.log"
-                      % (logs, utils.results, t.split("-")[0]))
+            with open("%s%s.log" % (utils.results, t.split("-")[0]),
+                      "wb",
+                      0) as f:
+                cmd = "/usr/bin/strace-log-merge %s/%s"\
+                    % (logs, t.split("-")[0])
+                r, o, e = utils.Run(cmd, stdout = f)
+                if r != 0:
+                    print(e)
             os.system("rm -rf %s/*" % (logs))
 
 
 def run():
     """Driver."""
-    print(run.__name__)
     if not os.path.isdir(logs):
         os.mkdir(logs)
     if not os.path.isdir(utils.results):

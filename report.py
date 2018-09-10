@@ -8,22 +8,25 @@ def print_html_doc(dictionary_data):
     THIS_DIR = os.path.dirname(os.path.abspath(__file__))
     j2_env = Environment(loader=FileSystemLoader(THIS_DIR),
                          trim_blocks=True)
-    print(j2_env.get_template('test_template.html').render(data=dictionary_data),file=open("index.html","w"))
+    print(j2_env.get_template('test_template.html').render(data=dictionary_data),
+          file=open("%sindex.html" % (utils.results) , "w"))
 
-def report_html():
+def merge_report():
+    merged_json = {}
     for f in os.listdir(utils.results):
         if f.endswith(".json"):
             f = os.path.abspath(utils.results + f)
-            print(f)
-            with open(f) as json_file:
-                data_json = json.load(json_file)
-                print_html_doc(data_json)
-            print("index.html generated")
-        if os.path.isfile("index.html"):
-            newpath = r'results'
-            if not os.path.exists(newpath):
-                os.makedirs(newpath)
-                os.system('mv index.html results/index.html')
-            else:
-                os.system('mv index.html results/index.html')
+            with open(f) as jf:
+                jsonl = json.load(jf)
+            if jsonl:
+                merged_json.update(**jsonl)
+    with open("%sdata.json" % (utils.results), 'w') as outfile:
+        json.dump(merged_json, outfile)
 
+def report_html():
+    data_json = merge_report()
+    with open("%sdata.json" % (utils.results), 'r') as json_file:
+        data_json = json.load(json_file)
+        print_html_doc(data_json)
+        print("index.html generated")
+    utils.Run("rm %sdata.json" % (utils.results))

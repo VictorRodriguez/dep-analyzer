@@ -19,7 +19,7 @@
 	  <th scope="col">Benchmark</th>
 	  <th scope="col">Top 10 Libs/Bin called</th>
 	  <th scope="col">Provided by</th>
-	  <th scope="col">Regresion in </th>
+	  <th scope="col">Regression in </th>
 	  <th scope="col">Candidates for guilty </th>
 	</tr>
       </thead>
@@ -56,9 +56,9 @@
       <td>
 	    <ul class="list-group">
 	      {% for result in value %}
-	      {% if result['regresion'] != null %}
+	      {% if result['regression'] != null %}
 	      <li class="list-group-item list-group-item-secondary">
-        {{ result['regresion'] }}
+        {{ result['regression'] }}
 	      {% endif %}
           </li>
           {% endfor %}
