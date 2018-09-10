@@ -73,3 +73,13 @@ def save_file(filename, content):
     except Exception:
         print("Error writing file '{0}'".format(filename))
         exit(1)
+
+def write_file(filename, content):
+    """Append data into a file."""
+    try:
+        with open(filename, 'w') as f:
+            f.write(content)
+            f.close()
+    except Exception:
+        print("Error writing file '{0}'".format(filename))
+        exit(1)

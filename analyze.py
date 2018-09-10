@@ -59,7 +59,7 @@ def whatprovides(file_name):
     cmd += file_name
     # cmd += " &> /tmp/yum.log"
     r, o, err = utils.Run(cmd)
-    utils.save_file(yum_log, o)
+    utils.write_file(yum_log, o)
     if r == 0 or err == '':
         cmd = "repoquery -c "
         cmd += yum_conf
@@ -67,9 +67,10 @@ def whatprovides(file_name):
         # cmd += " &> /tmp/yum.log"
         r, o, err = utils.Run(cmd)
         if r != 0:
-            print(err)
+            #print(err)
+            pass
         else:
-            utils.save_file(yum_log, o)
+            utils.write_file(yum_log, o)
 
     if os.path.isfile(yum_log):
         with open(yum_log) as f:
@@ -80,8 +81,8 @@ def whatprovides(file_name):
                     if pkg not in pkgs:
                         pkgs.append(pkg)
 
-    # for pkg in pkgs:
-    #     print("File : " + file_name + " is provided by : " + pkg)
+    for pkg in pkgs:
+        print("File : " + file_name + " is provided by : " + pkg)
     return pkg
 
 
