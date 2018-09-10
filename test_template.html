@@ -19,7 +19,6 @@
 	  <th scope="col">Benchmark</th>
 	  <th scope="col">Top 10 Libs/Bin called</th>
 	  <th scope="col">Provided by</th>
-	  <th scope="col">STRACE LOG</th>
 	  <th scope="col">Regresion in </th>
 	  <th scope="col">Candidates for guilty </th>
 	</tr>
@@ -49,17 +48,6 @@
 	      {% if result['provided by'] != null %}
 	      <li class="list-group-item list-group-item-secondary">
 		{{ result['provided by'] }}
-	      {% endif %}
-          </li>
-          {% endfor %}
-        </ul>
-      </td>
-      <td>
-	    <ul class="list-group">
-	      {% for result in value %}
-	      {% if result['strace'] != null %}
-	      <li class="list-group-item list-group-item-secondary">
-            <a href="{{ '%s'%result['strace'] }}">{{ result['strace'] }}</a>
 	      {% endif %}
           </li>
           {% endfor %}
