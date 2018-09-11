@@ -1,9 +1,11 @@
 """Get binary and library dependencies."""
 
 import os
+
 import re
 
 import utils
+
 import json
 
 data = {}

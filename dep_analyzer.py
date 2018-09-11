@@ -2,7 +2,7 @@
 
 """Main module."""
 
-import time
+from time import sleep
 
 from analyze import analysis
 
@@ -10,7 +10,7 @@ from run_benchmark import run
 
 from report import report_html
 
-import utils
+from utils import update
 
 time_to_sleep = 360  # ~1hr
 
@@ -18,12 +18,12 @@ time_to_sleep = 360  # ~1hr
 def main():
     """Run the main loop."""
     while True:
-        if utils.update():
+        if update():
             run()
             analysis()
             report_html()
             print("waiting for next build...")
-        time.sleep(time_to_sleep)
+        sleep(time_to_sleep)
 
 
 if __name__ == "__main__":
