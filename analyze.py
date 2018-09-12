@@ -1,12 +1,11 @@
 """Get binary and library dependencies."""
 
+import json
 import os
-
 import re
 
 import utils
 
-import json
 
 data = {}
 libraries = []
@@ -14,11 +13,12 @@ binaries = []
 max_lib_cnt = 20
 max_bin_cnt = 20
 
-def get_commit(release, pkg):
-    blame_log = []
-    filename = "RELEASENOTES"
 
-    url = 'https://cdn.download.clearlinux.org/releases/'+ str(release)\
+def get_commit(release, pkg):
+    """Get blame info."""
+    blame_log = []
+
+    url = 'https://cdn.download.clearlinux.org/releases/'+str(release)\
         + '/clear/RELEASENOTES'
     r, o, err = utils.Run("curl " + url)
     if r != 0:
@@ -31,8 +31,8 @@ def get_commit(release, pkg):
         if token in line:
             print(line)
             blame_log.append(line.strip())
-            blame_log.append(content[content.index(line)+1].strip().\
-                                 split("-")[0])
+            blame_log.append(content[content.index(line)+1].strip().
+                             split("-")[0])
     tmp = list(set(blame_log))
     return ''.join(tmp)
 
@@ -106,7 +106,7 @@ def analysis():
             # regresion is hardcoded at this point , please let me knwo whats
             # thebest way to pass the regression version to the script
             regression = utils.get_version()
-            if regression: 
+            if regression:
                 data[benchmark].append({
                     'regression': regression,
                 })

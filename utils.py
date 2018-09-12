@@ -76,6 +76,7 @@ def save_file(filename, content):
         print("Error writing file '{0}'".format(filename))
         exit(1)
 
+
 def write_file(filename, content):
     """Append data into a file."""
     try:

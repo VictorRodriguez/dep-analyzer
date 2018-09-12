@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 
 """Main module."""
 
@@ -6,9 +6,9 @@ from time import sleep
 
 from analyze import analysis
 
-from run_benchmark import run
-
 from report import report_html
+
+from run_benchmark import run
 
 from utils import update
 

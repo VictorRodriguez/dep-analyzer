@@ -30,7 +30,7 @@ def phoronix_run(b):
     else:
         with open("%s%s.log" % (utils.results, b), "wb", 0) as f:
             cmd = "/usr/bin/strace-log-merge %s/%s" % (logs, b)
-            rc, o, err = utils.Run(cmd, stdout = f)
+            rc, o, err = utils.Run(cmd, stdout=f)
             if rc != 0:
                 print(err, "(%s)" % rc)
             os.system("rm -rf %s/*" % (logs))
