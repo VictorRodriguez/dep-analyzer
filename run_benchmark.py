@@ -33,7 +33,7 @@ def phoronix_run(b):
             rc, o, err = utils.Run(cmd, stdout=f)
             if rc != 0:
                 print(err, "(%s)" % rc)
-            os.system("rm -rf %s/*" % (logs))
+        os.system("rm -rf %s/*" % (logs))
 
 
 def run():
@@ -43,7 +43,6 @@ def run():
     if not os.path.isdir(utils.results):
         os.mkdir(utils.results)
 
-    for benchmark in os.listdir(utils.pts):
-        b = benchmark.split("-")[0]
+    for b in os.listdir(utils.pts):
         check_benchmark(b)
         phoronix_run(b)

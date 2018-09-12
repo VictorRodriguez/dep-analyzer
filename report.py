@@ -6,6 +6,7 @@ from jinja2 import Environment, FileSystemLoader
 
 import utils
 
+report_page = '/var/www/html/dep-analyzer/'
 
 def print_html_doc(dictionary_data):
     """Generate the html index."""
@@ -14,7 +15,7 @@ def print_html_doc(dictionary_data):
                          trim_blocks=True)
     print(j2_env.get_template('test_template.html').
           render(data=dictionary_data),
-          file=open("%sindex.html" % (utils.results), "w"))
+          file=open("%sindex.html" % (report_page), "w"))
 
 
 def merge_report():
