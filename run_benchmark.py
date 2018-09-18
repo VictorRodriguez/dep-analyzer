@@ -25,7 +25,7 @@ def get_benchmarks():
     s.listen(1)
 
     conn, addr = s.accept()
-    data = str(conn.recv(buffer_size), 'utf-8')
+    data = str(conn.recv(buffer_size), "utf-8")
     conn.close()
 
     return data
