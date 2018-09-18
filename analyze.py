@@ -18,8 +18,9 @@ def get_commit(release, pkg):
     """Get blame info."""
     blame_log = []
 
-    url = 'https://cdn.download.clearlinux.org/releases/'+str(release)\
+    url = 'https://cdn.download.clearlinux.org/releases/'+ str(release)\
         + '/clear/RELEASENOTES'
+
     r, o, err = utils.Run("curl " + url)
     if r != 0:
         print("NO RELSEASENOTES FOUND!! for relase: " + str(release))
@@ -29,7 +30,7 @@ def get_commit(release, pkg):
     content = o.splitlines()
     for line in iter(content):
         if token in line:
-            print(line)
+            print("\t" + line)
             blame_log.append(line.strip())
             blame_log.append(content[content.index(line)+1].strip().
                              split("-")[0])
@@ -71,20 +72,22 @@ def whatprovides(file_name):
             if pkg not in pkgs:
                 pkgs.append(pkg)
 
-    for pkg in pkgs:
-        print("File : " + file_name + " is provided by : " + pkg)
+    # for pkg in pkgs:
+    #     print("\tFile : " + file_name + " is provided by : " + pkg)
     return pkg
 
 
 def analysis():
     """Fill the bin/lib lists."""
+    print("-", analysis.__name__)
     for logs in os.listdir(utils.results):
         if logs.endswith(".log"):
             log = os.path.abspath(utils.results + logs)
             benchmark = logs.split(".")[0]
             lib_count = 0
             bin_count = 0
-            with open(log) as f:
+            with open(log, "r") as f:
+                print(" : extract dependencies from", benchmark)
                 content = f.readlines()
                 for line in content:
                     if "openat" in line or "access" in line:
@@ -102,16 +105,12 @@ def analysis():
                                 bin_count += 1
 
             data[benchmark] = []
-            # TODO
-            # regresion is hardcoded at this point , please let me knwo whats
-            # thebest way to pass the regression version to the script
             regression = utils.get_version()
             if regression:
                 data[benchmark].append({
                     'regression': regression,
                 })
             for lib in libraries:
-                # print("Benchmark " + benchmark + " call: " + lib)
                 pkg = whatprovides(lib)
                 if (pkg):
                     data[benchmark].append({
@@ -125,7 +124,6 @@ def analysis():
                         })
 
             for binary in binaries:
-                # print("Benchmark " + benchmark + " call: " + binary)
                 pkg = whatprovides(binary)
                 if (pkg):
                     data[benchmark].append({
@@ -137,7 +135,10 @@ def analysis():
                         data[benchmark].append({
                             'changelog': blame_log,
                         })
-            if data:
-                json_file = utils.results + benchmark + "-data.json"
-                with open(json_file, 'w') as outfile:
-                    json.dump(data, outfile)
+    libraries.clear()
+    binaries.clear()
+
+    if data:
+        json_file = utils.results + "data.json"
+        with open(json_file, 'w') as outfile:
+            json.dump(data, outfile)

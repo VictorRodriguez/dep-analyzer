@@ -18,25 +18,11 @@ def print_html_doc(dictionary_data):
           file=open("%sindex.html" % (report_page), "w"))
 
 
-def merge_report():
-    """Merge all benchmakr dependencies."""
-    merged_json = {}
-    for f in os.listdir(utils.results):
-        if f.endswith(".json"):
-            f = os.path.abspath(utils.results + f)
-            with open(f) as jf:
-                jsonl = json.load(jf)
-            if jsonl:
-                merged_json.update(**jsonl)
-    with open("%sdata.json" % (utils.results), 'w') as outfile:
-        json.dump(merged_json, outfile)
-
-
 def report_html():
     """Create the report."""
-    data_json = merge_report()
+    print("-", report_html.__name__)
     with open("%sdata.json" % (utils.results), 'r') as json_file:
         data_json = json.load(json_file)
         print_html_doc(data_json)
-        print("index.html generated")
+        print(" : index.html generated")
     utils.Run("rm %sdata.json" % (utils.results))
