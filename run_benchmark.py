@@ -6,10 +6,12 @@ import utils
 
 import socket
 
+from time import sleep
+
 logs = "/tmp/logs"
 pxenv = {'FORCE_TIMES_TO_RUN': "1",
          'SKIP_EXTERNAL_DEPENDENCIES': "1"}
-ip_address = '127.0.0.1'
+ip_address = '10.219.128.115'
 port =       5005
 buffer_size= 1024
 
@@ -47,8 +49,8 @@ def phoronix_run(benchmark):
     print(" :", phoronix_run.__name__)
 
     for b in benchmark:
-        b = b.split("/")[1]
-        strace = "/usr/bin/strace -ff -o %s/%s -ttt " % (logs, b)
+        blog = b.split("/")[1]
+        strace = "/usr/bin/strace -ff -o %s/%s -ttt " % (logs, blog)
         pxenv.update({'EXECUTE_BINARY_PREPEND': strace})
 
         cmd = "phoronix-test-suite batch-run " + b
@@ -58,8 +60,8 @@ def phoronix_run(benchmark):
         if err:
             print(err, "(%s)" % rc)
         else:
-            with open("%s%s.log" % (utils.results, b), "wb", 0) as f:
-                cmd = "/usr/bin/strace-log-merge %s/%s" % (logs, b)
+            with open("%s%s.log" % (utils.results, blog), "wb", 0) as f:
+                cmd = "/usr/bin/strace-log-merge %s/%s" % (logs, blog)
                 rc, o, err = utils.Run(cmd, stdout=f)
                 if rc != 0:
                     print(err, "(%s)" % rc)
@@ -74,7 +76,13 @@ def run():
         os.mkdir(utils.results)
     os.system("rm -rf %s/* %s*" % (logs, utils.results))
 
-    benchmark = get_benchmarks().split(",")
-    regression = benchmark.pop()
+    while True:
+        benchmark = get_benchmarks().split(",")
+        regression = benchmark.pop()
+        if benchmark:
+            break
+        print("No benchmark(s) specified...")
+        sleep(3)
+
     phoronix_install(benchmark)
     phoronix_run(benchmark)
