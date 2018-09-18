@@ -12,22 +12,28 @@ libraries = []
 binaries = []
 max_lib_cnt = 20
 max_bin_cnt = 20
+release_notes = ""
 
 
-def get_commit(release, pkg):
+def get_release_notes(regression):
+    """Get the release notes."""
+    global release_notes
+
+    url = 'https://cdn.download.clearlinux.org/releases/'+ str(regression)\
+        + '/clear/RELEASENOTES'
+
+    r, release_notes, err = utils.Run("curl " + url)
+    if r != 0:
+        print("NO RELSEASENOTES FOUND!! for relase: " + str(regression))
+        return ""
+
+
+def get_commit(pkg):
     """Get blame info."""
     blame_log = []
 
-    url = 'https://cdn.download.clearlinux.org/releases/'+ str(release)\
-        + '/clear/RELEASENOTES'
-
-    r, o, err = utils.Run("curl " + url)
-    if r != 0:
-        print("NO RELSEASENOTES FOUND!! for relase: " + str(release))
-        return ""
-
     token = "Changes in package " + (pkg)
-    content = o.splitlines()
+    content = release_notes.splitlines()
     for line in iter(content):
         if token in line:
             print("\t" + line)
@@ -80,6 +86,10 @@ def whatprovides(file_name):
 def analysis():
     """Fill the bin/lib lists."""
     print("-", analysis.__name__)
+
+    regression = utils.get_version()
+    get_release_notes(regression)
+
     for logs in os.listdir(utils.results):
         if logs.endswith(".log"):
             log = os.path.abspath(utils.results + logs)
@@ -105,7 +115,6 @@ def analysis():
                                 bin_count += 1
 
             data[benchmark] = []
-            regression = utils.get_version()
             if regression:
                 data[benchmark].append({
                     'regression': regression,
@@ -117,7 +126,7 @@ def analysis():
                         'lib': lib,
                         'provided by': pkg
                     })
-                    blame_log = get_commit(regression, pkg)
+                    blame_log = get_commit(pkg)
                     if (blame_log):
                         data[benchmark].append({
                             'changelog': blame_log,
@@ -130,11 +139,12 @@ def analysis():
                         'binary': binary,
                         'provided by': pkg
                     })
-                    blame_log = get_commit(regression, pkg)
+                    blame_log = get_commit(pkg)
                     if (blame_log):
                         data[benchmark].append({
                             'changelog': blame_log,
                         })
+
     libraries.clear()
     binaries.clear()
 
@@ -142,3 +152,4 @@ def analysis():
         json_file = utils.results + "data.json"
         with open(json_file, 'w') as outfile:
             json.dump(data, outfile)
+        data.clear()
