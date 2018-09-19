@@ -19,12 +19,12 @@ def get_release_notes(regression):
     """Get the release notes."""
     global release_notes
 
-    url = 'https://cdn.download.clearlinux.org/releases/'+ str(regression)\
+    url = 'https://cdn.download.clearlinux.org/releases/'+ regression\
         + '/clear/RELEASENOTES'
 
     r, release_notes, err = utils.Run("curl " + url)
     if r != 0:
-        print("NO RELSEASENOTES FOUND!! for relase: " + str(regression))
+        print("NO RELSEASENOTES FOUND!! for relase: " + regression)
         return ""
 
 
@@ -87,8 +87,7 @@ def analysis():
     """Fill the bin/lib lists."""
     print("-", analysis.__name__)
 
-    regression = utils.get_version()
-    get_release_notes(regression)
+    get_release_notes(utils.regression)
 
     for logs in os.listdir(utils.results):
         if logs.endswith(".log"):
@@ -115,9 +114,9 @@ def analysis():
                                 bin_count += 1
 
             data[benchmark] = []
-            if regression:
+            if utils.regression:
                 data[benchmark].append({
-                    'regression': regression,
+                    'regression': utils.regression,
                 })
             for lib in libraries:
                 pkg = whatprovides(lib)

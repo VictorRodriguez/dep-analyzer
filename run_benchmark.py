@@ -78,11 +78,12 @@ def run():
 
     while True:
         benchmark = get_benchmarks().split(",")
-        regression = benchmark.pop()
+        utils.regression = benchmark.pop()
         if benchmark:
             break
         print("No benchmark(s) specified...")
         sleep(3)
 
+    utils.update()
     phoronix_install(benchmark)
     phoronix_run(benchmark)
