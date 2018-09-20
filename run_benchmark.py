@@ -39,7 +39,7 @@ def phoronix_install(b):
         cmd = "phoronix-test-suite force-install " + i
         print("\t", cmd)
 
-        rc, o, err = utils.Run(cmd)
+        rc, o, err = utils.Run(cmd, xenv=pxenv)
         if err:
             print(err, "(%s)" % rc)
 
